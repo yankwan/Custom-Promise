@@ -39,8 +39,8 @@ var CPromise = (function() {
 	CPromise.prototype.then = function(onResolved, onRejected) {
 		var self = this;
 
-		onResolved = typeof onResolved === 'function' ? onResolved : function(value) {};
-		onRejected = typeof onRejected === 'function' ? onRejected : function(reason) {};
+		onResolved = typeof onResolved === 'function' ? onResolved : function(value) {return value};
+		onRejected = typeof onRejected === 'function' ? onRejected : function(reason) {throw reason};
 
 		if (self.status === RESOLVED) {
 			return new CPromise(function(resolve, reject) {
@@ -49,7 +49,8 @@ var CPromise = (function() {
 					if (x instanceof CPromise) {
 						x.then(resolve, reject);
 					}
-
+					// 对返回的new CPromise对象设置其基本属性
+					// 通过调用resolve/reject 设置status、data
 					resolve(x);
 				} catch (e) {
 					reject(e);
@@ -100,7 +101,23 @@ var CPromise = (function() {
 		}
 	}
 
+	CPromise.prototype.catch = function(onRejected) {
+		return this.then(null, onRejected);
+	}
 
+
+	// 静态方法
+	CPromise.resolve = function(value) {
+		return new CPromise(function(resolve, reject) {
+			resolve(value);
+		});
+	}
+
+	CPromise.reject = function(reason) {
+		return new CPromise(function(resolve, reject) {
+			reject(reason);
+		})
+	}
 
 	module.exports = CPromise;
 })()

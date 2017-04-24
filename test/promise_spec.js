@@ -40,4 +40,42 @@ describe('CPromise', function() {
 			expect(result).toBe('This is resolved');
 		});
 	});
+
+	it('test then chain transmit', function() {
+		cp.then()
+			.catch()
+			.then()
+			.then(function(value) {
+				expect(value).toBe(10);
+			})
+	})
+
+
+	it('test throw error catch throw reject function', function() {
+		cp.then(function(result) {
+			CPromise.reject('Rejected');
+		}).catch(function() {
+			expect(cp).toThrow();
+		})
+	})
+
+	it('test async', function() {
+		var cp = new CPromise(function(resolev, reject) {
+			setTimeout(function() {
+				resolev('Success');
+			}, 1500);
+		});
+
+		var result;
+
+		cp.then(function(value) {
+			result = value;
+		});
+
+		setTimeout(function() {
+			expect(result).toBe('Success');
+			done();
+		});
+
+	});
 })
